@@ -16,7 +16,7 @@ Feature: Test de API súper simple
     * def setProperty = manSysProp.setProp("ResponseSaved", responseString)
 
   @id:2 @MarvelCharacters @consultaPersonajeId
-  Scenario Outline: T-API-BP-0001-CA02 - Consulta de personaje por usuario por id <id>
+  Scenario Outline: T-API-BP-0001-CA02 - Consulta correcta de personaje por usuario por id <id>
     Given url baseUrl
     And path username, 'api', 'characters', <id>
     When method get
@@ -26,3 +26,13 @@ Feature: Test de API súper simple
       | id |
       | 1  |
 
+  @id:3 @MarvelCharacters @consultaPersonajeIdError
+  Scenario Outline: T-API-BP-0001-CA03 - Consulta incorrecta de personaje por usuario por id <id> o id <id> no existe
+    Given url baseUrl
+    And path username, 'api', 'characters', <id>
+    When method get
+    Then status 404
+    And match response == { error: '#present' }
+    Examples:
+      | id |
+      | -1 |
