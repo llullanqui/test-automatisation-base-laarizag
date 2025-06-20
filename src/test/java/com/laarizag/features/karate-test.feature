@@ -71,13 +71,44 @@ Feature: Test de API súper simple
     And request character
     When method post
     Then status 400
-    * print response
+
+  @id:7 @MarvelCharacters @actualizarPersonajeExitoso
+  Scenario: T-API-BP-0003-CA01 - Actualización de personaje correcta
+    * header content-type = 'application/json'
+    * json lastResponse = manSysProp.getProp("lastCharacterCreated")
+    Given url baseUrl
+    And path username, 'api', 'characters', lastResponse.id
+    And def character = read('classpath:./data/CharacterData.json')
+    * set character.description = 'Updated description'
+    And request character
+    When method put
+    Then status 200
+    And match response contains { id: '#present' }
+
+  @id:8 @MarvelCharacters @actualizarPersonajeIncorrecta
+  Scenario: T-API-BP-0003-CA02 - Actualización de personaje incorrecta porque personaje no existe
+    * header content-type = 'application/json'
+    Given url baseUrl
+    And path username, 'api', 'characters', '-1'
+    And def character = read('classpath:./data/CharacterData.json')
+    * set character.name = 'Capitán Escudo'
+    And request character
+    When method put
+    Then status 404
+    And match response contains { error: '#present' }
 
   @id:9 @MarvelCharacters @borradoPersonajeExitoso
   Scenario: T-API-BP-0004-CA01 - Borrado exitoso de personaje
     * json lastResponse = manSysProp.getProp("lastCharacterCreated")
-    * print lastResponse
     Given url baseUrl
     And path username, 'api', 'characters', lastResponse.id
     When method delete
     Then status 204
+
+  @id:10 @MarvelCharacters @borradoPersonajeIncorrecto
+  Scenario: T-API-BP-0004-CA02 - Borrado no exitoso de personaje
+    Given url baseUrl
+    And path username, 'api', 'characters', '-1'
+    When method delete
+    Then status 404
+    And match response contains { error: '#present' }
